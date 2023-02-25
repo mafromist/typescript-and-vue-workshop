@@ -7,11 +7,14 @@ export default {
     TheNavbar,
     TheFooter,
   },
+  data: () => ({
+    tagline: 'Track the food what you want to eat'
+  }),
 }
 </script>
 
 <template>
-  <TheNavbar />
+  <TheNavbar :tagline="tagline" />
   <RouterView />
   <TheFooter />
 </template>

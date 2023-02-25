@@ -1,32 +1,46 @@
-<script>
-export default {
-  props: {
-    restaurant: {
-      type: Object,
-      required: true,
-    },
-  },
-  emits: ['delete-restaurant'],
-  computed: {
-    statusColor() {
-      switch (this.restaurant.status) {
-        case 'Want to Try':
-          return 'is-warning'
-        case 'Recommended':
-          return 'is-success'
-        case 'Do Not Recommend':
-          return 'is-danger'
-        default:
-          return ''
-      }
-    },
-  },
-  methods: {
-    deleteRestaurant() {
-      this.$emit('delete-restaurant', this.restaurant)
-    },
-  },
+<script setup lang="ts">
+
+import { computed } from 'vue';
+import type { Restaurant } from '../types';
+
+type PropTypes = {
+  restaurant: Restaurant
 }
+/*
+ **To define props simple way
+*/
+const props = defineProps<PropTypes>()
+/*
+ ** To define props if you need to use Default Values
+*/
+// defineProps({
+//   restaurant: {
+//     type: Object as PropType<Restaurant>,
+//     default: "..."
+//   }
+// })
+const statusColor = computed(() => {
+  switch (props.restaurant.status) {
+    case 'Want to Try':
+      return 'is-warning'
+    case 'Recommended':
+      return 'is-success'
+    case 'Do Not Recommend':
+      return 'is-danger'
+    default:
+      return ''
+  }
+})
+
+const emits = defineEmits<{
+  (e: 'delete-restaurant', restaurant: Restaurant): void
+}>()
+
+const deleteRestaurant = () => {
+  emits('delete-restaurant', props.restaurant)
+}
+
+
 </script>
 
 <template>
