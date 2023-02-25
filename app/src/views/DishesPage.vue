@@ -1,70 +1,70 @@
-<script>
+<script setup lang="ts">
+
+import { ref, computed, onMounted } from 'vue';
+import { useRoute } from 'vue-router';
+
 import NewDishForm from '../components/NewDishForm.vue'
 import DishCard from '../components/DishCard.vue'
 import SideMenu from '../components/SideMenu.vue'
 
-export default {
-  components: {
-    NewDishForm,
-    DishCard,
-    SideMenu,
-  },
-  data: () => ({
-    filterText: '',
-    dishList: [
-      {
-        id: '7d9f3f17-964a-4e82-98e5-ecbba4d709a1',
-        name: 'Ghost Pepper Poppers',
-        status: 'Want to Try',
-      },
-      {
-        id: '5c986b74-fa02-4a22-98f2-b1ff3559e85e',
-        name: 'A Little More Chowder Now',
-        status: 'Recommended',
-      },
-      {
-        id: 'c113411d-1589-414f-a283-daf7eedb631e',
-        name: 'Full Laptop Battery',
-        status: 'Do Not Recommend',
-      },
-    ],
-    showNewForm: false,
-  }),
-  computed: {
-    filteredDishList() {
-      return this.dishList.filter((dish) => {
-        if (dish.name) {
-          return dish.name.toLowerCase().includes(this.filterText.toLowerCase())
-        } else {
-          return this.dishList
-        }
-      })
-    },
-    numberOfDishes() {
-      return this.filteredDishList.length
-    },
-  },
-  methods: {
-    addDish(payload) {
-      this.dishList.push(payload)
-      this.hideForm()
-    },
-    deleteDish(payload) {
-      this.dishList = this.dishList.filter((dish) => {
-        return dish.id !== payload.id
-      })
-    },
-    hideForm() {
-      this.showNewForm = false
-    },
-  },
-  mounted() {
-    const route = this.$route
-    if (route.query.new) {
-      this.showNewForm = true
+import type { Dish } from '../types';
+import { useDishStore } from '../stores/DishStore';
+
+/**
+ * Dish Module
+ */
+const filterText = ref('');
+
+const dishStore = useDishStore();
+
+const dishList = dishStore.list
+
+const filteredDishList = computed((): Dish[] => {
+  return dishList.filter((dish: Dish) => {
+    if (dish.name) {
+      return dish.name.toLowerCase().includes(filterText.value.toLowerCase())
+    } else {
+      return dishList
     }
-  },
+  })
+})
+
+// const numberOfDishes = computed((): number => {
+//   return filteredDishList.value.length
+// })
+
+const addDish = (payload: Dish): void => {
+  dishStore.addDish(payload)
+  hideForm()
 }
+
+// const deleteDish = (payload: Dish): void => {
+//   dishList.value = dishList.value.filter((dish: Dish) => {
+//     return dish.id !== payload.id
+//   })
+// }
+
+/**
+ * New Form Module
+ */
+
+const showNewForm = ref(false);
+
+const hideForm = () => {
+  showNewForm.value = false
+}
+onMounted(() => {
+  const route = useRoute();
+  if (route.query.new) {
+    showNewForm.value = true
+  }
+})
+
+const updateFilterText= (event: KeyboardEvent) => {
+      filterText.value = (event.target as HTMLInputElement).value
+}
+
+
 </script>
 
 <template>
@@ -93,7 +93,7 @@ export default {
             <div class="level-item is-hidden-tablet-only">
               <div class="field has-addons">
                 <p class="control">
-                  <input class="input" type="text" placeholder="Dish name" v-model="filterText" />
+                  <input class="input" type="text" placeholder="Dish name" :value="filterText" @keyup.enter="updateFilterText" />
                 </p>
                 <p class="control">
                   <button class="button">Search</button>
